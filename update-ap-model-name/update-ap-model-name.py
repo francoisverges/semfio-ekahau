@@ -5,7 +5,11 @@ This script will update the AP model name based on the name of the
 external antenna selected.
 
 By default, the name of the AP model does not update when the external antenna
-is changed. This script will fix the
+is changed.
+
+This script only change the name of the model of APs used with external antennas.
+
+Use at your own risk, it hasn't been tested at large scale.
 """
 
 import argparse
