@@ -1,5 +1,6 @@
 """
-Written by Francois Verges (@VergesFrancois), Idea from Haydn Andrews (@@TheWLAN)
+Written by Francois Verges (@VergesFrancois)
+Idea came from Haydn Andrews (@TheWLAN)
 
 This script will create tags to document the following information for each AP:
  - antenna type (Internal or External)
