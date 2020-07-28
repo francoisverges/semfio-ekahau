@@ -1,5 +1,5 @@
 """
-Written by Francois Verges (@VergesFrancois)
+Written by Francois Verges (@VergesFrancois), Idea from Haydn Andrews (@@TheWLAN)
 
 This script will create tags to document the following information for each AP:
  - antenna type (Internal or External)
@@ -29,7 +29,7 @@ from pprint import pprint
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Extract images located in the AP notes and rename them using the AP name')
+        description='This scrip auto configure antenna tags based on AP properties')
     parser.add_argument('file', metavar='esx_file', help='Ekahau project file')
     args = parser.parse_args()
 
@@ -56,6 +56,7 @@ def main():
         with myzip.open('tagKeys.json') as json_file:
             tagKeys = json.load(json_file)
 
+        # Retreive the ID corresponding to each antenna related tags
         for tag in tagKeys['tagKeys']:
             if tag['key'] == 'antenna-name':
                 antenna_tag_id = tag['id']
@@ -64,6 +65,7 @@ def main():
             elif tag['key'] == 'antenna-vendor':
                 antenna_vendor_tag_id = tag['id']
 
+        # Loop through the AP and auto populate the tag values based on the AP properties
         for ap in accessPoints['accessPoints']:
             for radio in simulatedRadios['simulatedRadios']:
                 if ap['id'] == radio['accessPointId']:
