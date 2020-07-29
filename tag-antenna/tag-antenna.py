@@ -73,7 +73,7 @@ def main():
                     for antenna in antennaTypes['antennaTypes']:
                         if radio['antennaTypeId'] == antenna['id']:
                             if antenna['frequencyBand'] == "FIVE":
-                                if antenna['apCoupling'] == "EXTERNAL_ANTENNA":
+                                if antenna['apCoupling'] == "EXTERNAL_ANTENNA" and '802i' not in ap['model']:
                                     ext_antenna_name = antenna['name'].split(' ')[1]
                                     ext_antenna_vendor = antenna['name'].split(' ')[0]
                                     ap['tags'].append(
