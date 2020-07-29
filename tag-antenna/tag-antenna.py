@@ -74,6 +74,13 @@ def main():
                         if radio['antennaTypeId'] == antenna['id']:
                             if antenna['frequencyBand'] == "FIVE":
                                 if antenna['apCoupling'] == "EXTERNAL_ANTENNA":
+                                    if '802i' in ap['model']:
+        	                               ap['tags'].append(
+        	                                  {"tagKeyId": antenna_type_tag_id, "value": "Internal"})
+        	                               print(
+        	                                  f"{ap['name']}: 'antenna-type' tag set to 'Internal'\n")
+        	                               else:
+
                                     ext_antenna_name = antenna['name'].split(' ')[1]
                                     ext_antenna_vendor = antenna['name'].split(' ')[0]
                                     ap['tags'].append(
