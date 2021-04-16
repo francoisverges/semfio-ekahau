@@ -69,30 +69,31 @@ def main():
         # Loop through the AP and auto populate the tag values based on the AP properties
         for ap in accessPoints['accessPoints']:
             for radio in simulatedRadios['simulatedRadios']:
-                if ap['id'] == radio['accessPointId']:
-                    for antenna in antennaTypes['antennaTypes']:
-                        if radio['antennaTypeId'] == antenna['id']:
-                            if antenna['frequencyBand'] == "FIVE":
-                                if antenna['apCoupling'] == "EXTERNAL_ANTENNA" and '802i' not in ap['model']:
-                                    ext_antenna_name = antenna['name'].split(' ')[1]
-                                    ext_antenna_vendor = antenna['name'].split(' ')[0]
-                                    ap['tags'].append(
-                                        {"tagKeyId": antenna_tag_id, "value": ext_antenna_name})
-                                    print(
-                                        f"{ap['name']}: 'antenna-name' tag set to '{ext_antenna_name}'")
-                                    ap['tags'].append(
-                                        {"tagKeyId": antenna_type_tag_id, "value": "External"})
-                                    print(
-                                        f"{ap['name']}: 'antenna-type' tag set to 'External'")
-                                    ap['tags'].append(
-                                        {"tagKeyId": antenna_vendor_tag_id, "value": ext_antenna_vendor})
-                                    print(
-                                        f"{ap['name']}: 'antenna-vendor' tag set to '{ext_antenna_vendor}'\n")
-                                else:
-                                    ap['tags'].append(
-                                        {"tagKeyId": antenna_type_tag_id, "value": "Internal"})
-                                    print(
-                                        f"{ap['name']}: 'antenna-type' tag set to 'Internal'\n")
+                if radio['status'] != "DELETED":
+                    if ap['id'] == radio['accessPointId']:
+                        for antenna in antennaTypes['antennaTypes']:
+                            if radio['antennaTypeId'] == antenna['id']:
+                                if antenna['frequencyBand'] == "FIVE":
+                                    if antenna['apCoupling'] == "EXTERNAL_ANTENNA" and '802i' not in ap['model']:
+                                        ext_antenna_name = antenna['name'].split(' ')[1]
+                                        ext_antenna_vendor = antenna['name'].split(' ')[0]
+                                        ap['tags'].append(
+                                            {"tagKeyId": antenna_tag_id, "value": ext_antenna_name})
+                                        print(
+                                            f"{ap['name']}: 'antenna-name' tag set to '{ext_antenna_name}'")
+                                        ap['tags'].append(
+                                            {"tagKeyId": antenna_type_tag_id, "value": "External"})
+                                        print(
+                                            f"{ap['name']}: 'antenna-type' tag set to 'External'")
+                                        ap['tags'].append(
+                                            {"tagKeyId": antenna_vendor_tag_id, "value": ext_antenna_vendor})
+                                        print(
+                                            f"{ap['name']}: 'antenna-vendor' tag set to '{ext_antenna_vendor}'\n")
+                                    else:
+                                        ap['tags'].append(
+                                            {"tagKeyId": antenna_type_tag_id, "value": "Internal"})
+                                        print(
+                                            f"{ap['name']}: 'antenna-type' tag set to 'Internal'\n")
 
     # Write the changes into the accessPoints.json File
     with open(working_directory + '/' + current_filename + '/accessPoints.json', 'w') as file:
