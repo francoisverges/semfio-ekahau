@@ -25,8 +25,23 @@ import zipfile
 import json
 import pathlib
 import shutil
+import uuid
 from pprint import pprint
 
+tagKeys = {}
+
+def findTagKeyId(key):
+    # Find or generate the tagKey tag and Return the UUID
+    tagFound = False
+    for tagKey in tagKeys['tagKeys']:
+        if tagKey['key']==key:
+            tagFound = True
+            id = tagKey['id']
+    if not tagFound:
+        id = str(uuid.uuid4())
+        status = 'CREATED'
+        tagKeys['tagKeys'].append({'key': key, 'id': id, 'status': status})
+    return id
 
 def main():
     parser = argparse.ArgumentParser(
@@ -53,19 +68,18 @@ def main():
         with myzip.open('antennaTypes.json') as json_file:
             antennaTypes = json.load(json_file)
 
-        # Load the tagKeys.json file into the tagKeys dictionary
-        with myzip.open('tagKeys.json') as json_file:
-            tagKeys = json.load(json_file)
+        # Load the tagKeys.json file into the tagKeys dictionary or create the dictionary
+        if 'tagKeys.json' in myzip.namelist():
+            with myzip.open('tagKeys.json') as json_file:
+                tagKeys.update(json.load(json_file))
+        else:
+            tagKeys.update({'tagKeys': []})
 
         # Retreive the ID corresponding to each antenna related tags
-        for tag in tagKeys['tagKeys']:
-            if tag['key'] == 'antenna-name':
-                antenna_tag_id = tag['id']
-            elif tag['key'] == 'antenna-type':
-                antenna_type_tag_id = tag['id']
-            elif tag['key'] == 'antenna-vendor':
-                antenna_vendor_tag_id = tag['id']
-
+        antenna_tag_id = findTagKeyId('antenna-name')
+        antenna_type_tag_id = findTagKeyId('antenna-type')
+        antenna_vendor_tag_id = findTagKeyId('antenna-vendor')
+        
         # Loop through the AP and auto populate the tag values based on the AP properties
         for ap in accessPoints['accessPoints']:
             for radio in simulatedRadios['simulatedRadios']:
@@ -98,6 +112,10 @@ def main():
     # Write the changes into the accessPoints.json File
     with open(working_directory + '/' + current_filename + '/accessPoints.json', 'w') as file:
         json.dump(accessPoints, file, indent=4)
+
+    # Write the chagnes into the tagKeys.json File
+    with open(working_directory + '/' + current_filename + '/tagKeys.json', 'w') as file:
+        json.dump(tagKeys, file, indent=4)
 
     # Create a new version of the Ekahau Project
     new_filename = current_filename + '_modified'
