@@ -14,14 +14,15 @@ def find_ap_name_from_coord(accessPoints, cable_note_point, floorPlanId):
     for accessPoint in accessPoints['accessPoints']:
         if accessPoint['location']['floorPlanId'] != floorPlanId:
             continue
-        ap_location = [accessPoint['location']['coord']['x'], accessPoint['location']['coord']['y']]
-        ap_locations.append(ap_location)
-    closest_ap_location = np.argmin(np.sum((np.array(ap_locations) - np.array(cable_note_point))**2, axis=1))
-
+        if accessPoint["status"] != "DELETED":
+            ap_location = [accessPoint['location']['coord']['x'], accessPoint['location']['coord']['y']]
+            ap_locations.append(ap_location)
+        closest_ap_location = np.argmin(np.sum((np.array(ap_locations) - np.array(cable_note_point)) ** 2, axis=1))
     for accessPoint in accessPoints['accessPoints']:
-        if accessPoint['location']['coord']['x'] == ap_locations[closest_ap_location][0]:
-            if accessPoint['location']['coord']['y'] == ap_locations[closest_ap_location][1]:
-                return (accessPoint['name'])
+            if accessPoint["status"] != "DELETED":
+                if accessPoint['location']['coord']['x'] == ap_locations[closest_ap_location][0]:
+                    if accessPoint['location']['coord']['y'] == ap_locations[closest_ap_location][1]:
+                        return (accessPoint['name'])
 
 
 def find_telco_room_name_from_coord(notes, pictureNotes, cable_note_point):
