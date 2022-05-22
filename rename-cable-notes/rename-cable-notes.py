@@ -8,10 +8,12 @@ import shutil
 import numpy as np
 
 
-def find_ap_name_from_coord(accessPoints, cable_note_point):
+def find_ap_name_from_coord(accessPoints, cable_note_point, floorPlanId):
     """Return the name of the AP which is located closest to the first point of the cable note."""
     ap_locations = []
     for accessPoint in accessPoints['accessPoints']:
+        if accessPoint['location']['floorPlanId'] != floorPlanId:
+            continue
         ap_location = [accessPoint['location']['coord']['x'], accessPoint['location']['coord']['y']]
         ap_locations.append(ap_location)
     closest_ap_location = np.argmin(np.sum((np.array(ap_locations) - np.array(cable_note_point))**2, axis=1))
@@ -26,18 +28,25 @@ def find_telco_room_name_from_coord(notes, pictureNotes, cable_note_point):
     """Return the name of the MDF/IDF room closest to the last point ot the cable note."""
     telco_room_locations = []
     for note in notes['notes']:
-        if note['text'].find('IDF') != -1 or note['text'].find('MDF') != -1:
-            for pictureNote in pictureNotes['pictureNotes']:
-                if note['id'] == pictureNote['noteIds'][0]:
-                    telco_room_locations.append([pictureNote['location']['coord']['x'], pictureNote['location']['coord']['y']])
-    closest_telco_room_location = np.argmin(np.sum((np.array(telco_room_locations) - np.array(cable_note_point))**2, axis=1))
+        if note['status'] != "DELETED":
+            if note['text'].find('IDF') != -1 or note['text'].find('MDF') != -1 or note['text'].find('Rack') != -1:
+                for pictureNote in pictureNotes['pictureNotes']:
+                    if pictureNote['status'] != "DELETED":
+                        if note['id'] == pictureNote['noteIds'][0]:
+                            telco_room_locations.append(
+                                [pictureNote['location']['coord']['x'], pictureNote['location']['coord']['y']])
+    closest_telco_room_location = np.argmin(
+        np.sum((np.array(telco_room_locations) - np.array(cable_note_point)) ** 2, axis=1))
 
     for pictureNote in pictureNotes['pictureNotes']:
-        if pictureNote['location']['coord']['x'] == telco_room_locations[closest_telco_room_location][0]:
-            if pictureNote['location']['coord']['y'] == telco_room_locations[closest_telco_room_location][1]:
-                for note in notes['notes']:
-                    if note['id'] == pictureNote['noteIds'][0]:
-                        return note['text']
+        try:
+            if pictureNote['location']['coord']['x'] == telco_room_locations[closest_telco_room_location][0]:
+                if pictureNote['location']['coord']['y'] == telco_room_locations[closest_telco_room_location][1]:
+                    for note in notes['notes']:
+                        if note['id'] == pictureNote['noteIds'][0]:
+                            return note['text']
+        except KeyError:
+            print(pictureNote)
 
 
 def main():
@@ -75,9 +84,9 @@ def main():
             if cableNote['points']:
                 cable_note_first_point = [cableNote['points'][0]['x'], cableNote['points'][0]['y']]
                 cable_note_last_point = [cableNote['points'][-1]['x'], cableNote['points'][-1]['y']]
-
+            floorPlanId = cableNote['floorPlanId']
             # Search for AP Name coresponding to AP coordinates
-            ap_name = find_ap_name_from_coord(accessPoints, cable_note_last_point)
+            ap_name = find_ap_name_from_coord(accessPoints, cable_note_last_point, floorPlanId)
 
             # Search for the IDF/MDF room closer to the end of the cable note
             telco_room_name = find_telco_room_name_from_coord(notes, pictureNotes, cable_note_first_point)
